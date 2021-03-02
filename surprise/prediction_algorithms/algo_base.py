@@ -221,7 +221,10 @@ class AlgoBase(object):
         construction_func = {'cosine': sims.cosine,
                              'msd': sims.msd,
                              'pearson': sims.pearson,
-                             'pearson_baseline': sims.pearson_baseline}
+                             'pearson_baseline': sims.pearson_baseline,
+                             'cosine_mclaughing': sims.cosine_mclaughing,
+                             'pearson_mclaughing': sims.pearson_mclaughing,
+                            }
 
         if self.sim_options['user_based']:
             n_x, yr = self.trainset.n_users, self.trainset.ir
