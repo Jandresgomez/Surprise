@@ -43,10 +43,10 @@ def jaccard(n_x, yr, min_items_cutoff, mean_mod):
     cdef int xi, xj
     cdef double ri, rj
     cdef int min_cutoff = min_items_cutoff
-    cdef double mean_mod = mean_mod
+    cdef double mod = mean_mod
 
-    if mean_mod == 0:
-        mean_mod = 1
+    if mod == 0:
+        mod = 1
 
     mean = np.zeros((n_x), np.double)
     counts = np.zeros((n_x), np.int)
@@ -60,7 +60,7 @@ def jaccard(n_x, yr, min_items_cutoff, mean_mod):
 
     for xi in range(n_x):
         if counts[xi] > min_cutoff and counts[xi] > 0:
-            mean[xi] = mean_mod*(mean[xi]/counts[xi])
+            mean[xi] = mod*(mean[xi]/counts[xi])
         else:
             mean[xi] = 0
     
