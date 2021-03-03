@@ -73,7 +73,7 @@ def jaccard(n_x, yr, min_items_cutoff, mean_mod):
         sim[xi, xi] = 1
         for xj in range(xi + 1, n_x):
             denum = (counts[xi] + counts[xj] - freq[xi, xj])
-            if denum = 0:
+            if denum == 0:
                 sim[xi, xj] = 0
             else:
                 sim[xi, xj] = freq[xi, xj]/denum
