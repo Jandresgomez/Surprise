@@ -24,54 +24,59 @@ import numpy as np
 from six.moves import range
 from six import iteritems
 
-def jaccard(n_x, yr, min_support):
+def jaccard(n_x, yr, min_items_cutoff, mean_mod):
     """
-    Custom cosine similarity function that gradually penalizes entities 
-    that do not share at least min_support data points.
+    Custom jaccard index function. It takes all items above mean*mean_mod
+    as the items that interest X. If less than min_items_cutoff are provided,
+    all items are considered to be of interest to X.
     """
 
-    # sum (r_xy * r_x'y) for common ys
-    cdef np.ndarray[np.double_t, ndim=2] prods
+    # average value for ys
+    cdef np.ndarray[np.double_t, ndim=1] mean
+    # amount of ys per i
+    cdef np.ndarray[np.int_t, ndim=1] counts
     # number of common ys
     cdef np.ndarray[np.int_t, ndim=2] freq
-    # sum (r_xy ^ 2) for common ys
-    cdef np.ndarray[np.double_t, ndim=2] sqi
-    # sum (r_x'y ^ 2) for common ys
-    cdef np.ndarray[np.double_t, ndim=2] sqj
     # the similarity matrix
     cdef np.ndarray[np.double_t, ndim=2] sim
 
     cdef int xi, xj
     cdef double ri, rj
-    cdef int min_sprt = min_support
+    cdef int min_cutoff = min_items_cutoff
+    cdef double mean_mod = mean_mod
 
-    prods = np.zeros((n_x, n_x), np.double)
+    if mean_mod == 0:
+        mean_mod = 1
+
+    mean = np.zeros((n_x), np.double)
+    counts = np.zeros((n_x), np.int)
     freq = np.zeros((n_x, n_x), np.int)
-    sqi = np.zeros((n_x, n_x), np.double)
-    sqj = np.zeros((n_x, n_x), np.double)
     sim = np.zeros((n_x, n_x), np.double)
+    
+    for y, y_ratings in iteritems(yr):
+        for xi, ri in y_ratings:
+            mean[xi] += ri
+            counts[xi] += 1
+
+    for xi in range(n_x):
+        if counts[xi] > min_cutoff and counts[xi] > 0:
+            mean[xi] = mean_mod*(mean[xi]/counts[xi])
+        else:
+            mean[xi] = 0
     
     for y, y_ratings in iteritems(yr):
         for xi, ri in y_ratings:
             for xj, rj in y_ratings:
                 freq[xi, xj] += 1
-                prods[xi, xj] += ri * rj
-                sqi[xi, xj] += ri**2
-                sqj[xi, xj] += rj**2
 
     for xi in range(n_x):
         sim[xi, xi] = 1
         for xj in range(xi + 1, n_x):
-            if freq[xi, xj] == 0:
+            denum = (counts[xi] + counts[xj] - freq[xi, xj])
+            if denum = 0:
                 sim[xi, xj] = 0
-            if freq[xi, xj] < min_sprt:
-                denum = np.sqrt(sqi[xi, xj] * sqj[xi, xj])
-                full_val = prods[xi, xj] / denum
-                sim[xi, xj] = full_val*(freq[xi, xj]/min_sprt)
             else:
-                denum = np.sqrt(sqi[xi, xj] * sqj[xi, xj])
-                sim[xi, xj] = prods[xi, xj] / denum
-
+                sim[xi, xj] = freq[xi, xj]/denum
             sim[xj, xi] = sim[xi, xj]
 
     return sim

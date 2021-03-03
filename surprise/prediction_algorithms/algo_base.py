@@ -221,6 +221,7 @@ class AlgoBase(object):
         construction_func = {'cosine': sims.cosine,
                              'msd': sims.msd,
                              'pearson': sims.pearson,
+                             'jaccard': sims.jaccard,
                              'pearson_baseline': sims.pearson_baseline,
                              'cosine_mclaughing': sims.cosine_mclaughing,
                              'pearson_mclaughing': sims.pearson_mclaughing,
